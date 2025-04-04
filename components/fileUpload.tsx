@@ -6,8 +6,9 @@ import { supabase } from '../lib/supabaseClient';
 
 // Define the structure of the data we'll be uploading
 interface UserData {
-  f_name: string;
-  l_name: string;
+  first_name: string;
+  last_name: string;
+  email: string;
 }
 
 const FileUpload = () => {
@@ -39,12 +40,43 @@ const FileUpload = () => {
       const data: UserData[] = XLSX.utils.sheet_to_json(sheet);
 
       try {
-        // Insert data into Supabase table 'users'
-        const { data: insertedData, error } = await supabase
-          .from('users')
-          .upsert(data);  // We use upsert in case the records already exist
+        const usersToInsert = [];
+        // Check if any of the users already exist in the database by f_name and l_name
+        for (const user of data) {
+          const { data: existingUser, error: fetchError } = await supabase
+            .from('users')
+            .select('id')
+            .eq('email', user.email)
+            .eq('first_name', user.first_name) 
+            .eq('last_name', user.last_name)  
+            .limit(1);  // Ensures we get a maximum of 1 result
+            // console.log(user);
+          if (fetchError) {
+            throw fetchError;
+          }
 
-        if (error) throw error;
+          // Check if there's any user already matching the f_name and l_name
+          if (existingUser && existingUser.length > 0) {
+            window.alert(`User ${user.first_name} ${user.last_name} already exists in the database!`);
+          } else {
+            // Add non-duplicate user to the list
+            usersToInsert.push(user);
+          }
+        }
+
+
+        // If no duplicates, proceed with the upsert
+        if (usersToInsert.length > 0) {
+          const { data: insertedData, error } = await supabase
+            .from('users')
+            .upsert(usersToInsert);
+      
+          if (error) throw error;
+      
+          setMessage('Data successfully uploaded to Supabase!');
+        } else {
+          setMessage('No new users to upload.');
+        }
 
         setMessage('Data successfully uploaded to Supabase!');
       } catch (error) {
