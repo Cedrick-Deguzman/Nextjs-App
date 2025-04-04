@@ -1,16 +1,58 @@
-import Hero from "@/components/hero";
-import ConnectSupabaseSteps from "@/components/tutorial/connect-supabase-steps";
-import SignUpUserSteps from "@/components/tutorial/sign-up-user-steps";
-import { hasEnvVars } from "@/utils/supabase/check-env-vars";
+'use client';
 
-export default async function Home() {
+import { useEffect, useState } from 'react';
+import { supabase } from '../lib/supabaseClient';
+
+const usersPage = () => {
+  const [data, setData] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data: users, error } = await supabase
+        .from('users')
+        .select('*');
+        console.log(users, error);
+      if (error) {
+        setError(error.message);
+      } else {
+        setData(users);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (error) return <div>Error: {error}</div>;
+  if (data.length === 0) return <div>Loading...</div>;
+
   return (
-    <>
-      <Hero />
-      <main className="flex-1 flex flex-col gap-6 px-4">
-        <h2 className="font-medium text-xl mb-4">Next steps</h2>
-        {hasEnvVars ? <SignUpUserSteps /> : <ConnectSupabaseSteps />}
-      </main>
-    </>
+    <div>
+    <h1>Supabase Users</h1>
+    <table cellPadding="10" style={{ width: '100%', marginTop: '20px', borderCollapse: 'collapse' }}>
+      <thead>
+        <tr>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Location</th>
+        </tr>
+      </thead>
+      <tbody style={{ border: '1px solid #ddd' }}>
+        {data.map((item, index) => (
+          <tr key={index}>
+            <td>{item.first_name}</td>
+            <td>{item.last_name}</td> 
+            <td>{item.email}</td>
+            <td>{item.number}</td>
+            <td>{item.location}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
   );
-}
+};
+
+export default usersPage;
