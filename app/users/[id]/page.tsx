@@ -10,8 +10,10 @@ type User = {
   last_name: string;
   email: string;
   number: string;
-  location: string;
+  city: string;
+  barangay: string;
   group: string;
+  category: string;
 };
 
 export default function UserDetailPage() {
@@ -70,8 +72,10 @@ export default function UserDetailPage() {
         last_name: updatedUser.last_name,
         email: updatedUser.email,
         number: updatedUser.number,
-        location: updatedUser.location,
+        city: updatedUser.city,
+        barangay: updatedUser.barangay,
         group: updatedUser.group,
+        category: updatedUser.category,
       })
       .eq('id', updatedUser.id);
 
@@ -182,11 +186,43 @@ export default function UserDetailPage() {
               />
             </div>
             <div style={{ marginBottom: '10px' }}>
-              <label style={{ marginRight: '10px' }}>Location:</label>
+              <label style={{ marginRight: '10px' }}>City:</label>
               <input
                 type="text"
                 name="location"
-                value={updatedUser?.location || ''}
+                value={updatedUser?.city || ''}
+                onChange={handleInputChange}
+                style={{
+                  padding: '8px',
+                  border: '2px solid #ccc',
+                  borderRadius: '4px',
+                  width: '100%',
+                  marginBottom: '10px',
+                }}
+              />
+            </div>
+            <div style={{ marginBottom: '10px' }}>
+              <label style={{ marginRight: '10px' }}>Barangay:</label>
+              <input
+                type="text"
+                name="location"
+                value={updatedUser?.barangay || ''}
+                onChange={handleInputChange}
+                style={{
+                  padding: '8px',
+                  border: '2px solid #ccc',
+                  borderRadius: '4px',
+                  width: '100%',
+                  marginBottom: '10px',
+                }}
+              />
+            </div>
+            <div style={{ marginBottom: '10px' }}>
+              <label style={{ marginRight: '10px' }}>Category:</label>
+              <input
+                type="text"
+                name="location"
+                value={updatedUser?.category || ''}
                 onChange={handleInputChange}
                 style={{
                   padding: '8px',
@@ -249,12 +285,20 @@ export default function UserDetailPage() {
               <td style={{ padding: '10px', border: '1px solid #ddd' }}>{user?.number || "N/A"} </td>
             </tr>
             <tr>
-              <td style={{ padding: '10px', border: '1px solid #ddd' }}>Location</td>
-              <td style={{ padding: '10px', border: '1px solid #ddd' }}>{user?.location || "N/A"}</td>
+              <td style={{ padding: '10px', border: '1px solid #ddd' }}>City</td>
+              <td style={{ padding: '10px', border: '1px solid #ddd' }}>{user?.city || "N/A"}</td>
+            </tr>
+            <tr>
+              <td style={{ padding: '10px', border: '1px solid #ddd' }}>Barangay</td>
+              <td style={{ padding: '10px', border: '1px solid #ddd' }}>{user?.barangay || "N/A"}</td>
             </tr>
             <tr>
               <td style={{ padding: '10px', border: '1px solid #ddd' }}>Group</td>
               <td style={{ padding: '10px', border: '1px solid #ddd' }}>{user?.group || "N/A"}</td>
+            </tr>
+            <tr>
+              <td style={{ padding: '10px', border: '1px solid #ddd' }}>Category</td>
+              <td style={{ padding: '10px', border: '1px solid #ddd' }}>{user?.category || "N/A"}</td>
             </tr>
           </tbody>
         </table>

@@ -1,79 +1,145 @@
 'use client'; // Marks the file as a client-side component
 
+import Header from '../components/header';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
 import FileUpload from '../components/fileUpload';
+import DownloadExcelButton from '../components/DownloadExcelButton'
+import CategoryPieChart from '../components/pieChart';
+import { FaPlus } from 'react-icons/fa';
 
-type User = {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
+type UserRow = {
+  city: string;
+  category: string;
+  group: string;
 };
 
-export default function UsersPage() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function HomePage() {
+  const [cityData, setCityData] = useState<{
+    [location: string]: {
+      [group: string]: {
+        categories: { [key: string]: number };
+      };
+    };
+  }>({});
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-
-  const router = useRouter();
+ 
+  const [categoryValues, setCategoryValues] = useState<string[]>([]);
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      const { data, error } = await supabase.from('users').select('*');
-      if (error) {
-        setError('Error fetching users');
-        setLoading(false);
-        return;
-      }
-      setUsers(data || []);
-      setLoading(false);
-    };
+    const fetchData = async () => {
+      try {
+        // Fetch data from Supabase
+        const { data, error } = await supabase
+          .from('users')
+          .select('city, category, group');
+        
+        if (error) {
+          throw new Error(error.message);
+        }
 
-    fetchUsers();
-  }, []);
+        const grouped: {
+          [city: string]: {
+            [group: string]: {
+              categories: { [key: string]: number };
+            };
+          };
+        } = {};
+
+        const allCategories = new Set<string>();
+
+        data.forEach((row: UserRow) => {
+        const { city, group, category } = row;
+        allCategories.add(category);
+
+        if (!grouped[city]) {
+          grouped[city] = {};
+        }
+        if (!grouped[city][group]) {
+          grouped[city][group] = {
+            categories: {},
+          };
+        }
+
+        grouped[city][group].categories[category] =
+          (grouped[city][group].categories[category] || 0) + 1;
+      });
+
+      setCityData(grouped);
+      setCategoryValues(Array.from(allCategories).sort());
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchData();
+}, []);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
 
+  const handleGroupClick = (location: string, group: string) => {
+    // Here, you can handle what happens when a group is clicked.
+    // For example, logging, showing a modal, or redirecting to another page.
+    console.log(`Group clicked: ${location} - ${group}`);
+  };
+
   return (
     <>
-    <FileUpload />
-    <div>
-      <h1>Users List</h1>
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr>
-            <th style={{ padding: '10px', border: '1px solid #ddd' }}>First Name</th>
-            <th style={{ padding: '10px', border: '1px solid #ddd' }}>Last Name</th>
-            <th style={{ padding: '10px', border: '1px solid #ddd' }}>Email</th>
-            <th style={{ padding: '10px', border: '1px solid #ddd' }}>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => (
-            <tr key={user.id}
-            style={{ cursor: 'pointer' }} // Change cursor to pointer on hover
-            onClick={() => router.push(`/users/${user.id}`)}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f0f0f0'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}>
-              <td style={{ padding: '10px', border: '1px solid #ddd' }}>{user.first_name}</td>
-              <td style={{ padding: '10px', border: '1px solid #ddd' }}>{user.last_name}</td>
-              <td style={{ padding: '10px', border: '1px solid #ddd' }}>{user.email}</td>
-              <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                <button
-                  onClick={() => router.push(`/users/${user.id}`)}
-                  style={{ padding: '5px 10px', backgroundColor: 'blue', color: 'white', cursor: 'pointer' }}
-                >
-                  View Details
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+      <Header/>
+      <CategoryPieChart />
+      <DownloadExcelButton />
+      
+      <div className="p-5">
+        {Object.entries(cityData).map(([city, groups]) => (
+          <div key={city} className="mb-10 w-full mx-auto">
+            <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold">{city}</h2>
+            <button
+              
+              className="flex items-center text-blue-500 hover:text-blue-700 text-sm"
+            >
+              <FaPlus className="mr-2" /> Add Group
+            </button>
+          </div>
+            <div>
+              {Object.entries(groups).map(([group, data]) => {
+                // Create an array of category counts for the group
+                const categoryCounts = categoryValues.map(
+                  (category) => data.categories[category] || 0
+                );
+  
+                const groupInfo = categoryCounts.join(' ');
+  
+                return (
+                  <div key={group} className="mb-2 flex items-center w-full">
+                    <div
+                      onClick={() => handleGroupClick(city, group)}
+                      className="flex justify-between p-2 border border-gray-300 cursor-pointer w-80 bg-gray-100"
+                    >
+                      <strong>{`Group ${group}`}</strong>
+                      <div className="flex justify-between w-1/2 pl-2">
+                        {categoryCounts.map((count, index) => (
+                          <span
+                            key={index}
+                            className="inline-block w-1/5 text-center"
+                          >
+                            {count}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
     </>
   );
 }

@@ -50,7 +50,7 @@ const FileUpload = () => {
             .eq('first_name', user.first_name) 
             .eq('last_name', user.last_name)  
             .limit(1);  // Ensures we get a maximum of 1 result
-            // console.log(user);
+            console.log(user);
           if (fetchError) {
             throw fetchError;
           }
@@ -78,7 +78,6 @@ const FileUpload = () => {
           setMessage('No new users to upload.');
         }
 
-        setMessage('Data successfully uploaded to Supabase!');
       } catch (error) {
         console.error('Error uploading data:', error);
         setMessage('Failed to upload data.');
