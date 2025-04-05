@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
 import FileUpload from '../components/fileUpload';
-import DownloadExcelButton from '../components/DownloadExcelButton'
+import DownloadExcelButton from '../components/downloadExcelButton'
 import CategoryPieChart from '../components/pieChart';
 import { FaPlus } from 'react-icons/fa';
 
