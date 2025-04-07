@@ -88,10 +88,10 @@ const CategoryPieChart: React.FC = () => {
 
 return (
     <div>
-       <div style={{ width: '90%', margin: '0 auto' }}>
-       <h2 style={{ textAlign: 'center' }}>Distribution</h2>
-        <Pie data={pieData} options={pieOptions}/>
-        </div>
+       <div className="w-[90%] lg:w-1/2 mx-auto px-4">
+       <h2 className="text-center text-xl font-semibold mb-4">Distribution</h2>
+          <Pie data={pieData} options={pieOptions}/>
+       </div>
     </div>
   );
 };

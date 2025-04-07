@@ -25,7 +25,7 @@ export default function HomePage() {
   }>({});
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
- 
+  const router = useRouter();
   const [categoryValues, setCategoryValues] = useState<string[]>([]);
 
   useEffect(() => {
@@ -88,19 +88,23 @@ export default function HomePage() {
     console.log(`Group clicked: ${location} - ${group}`);
   };
 
+  const addGroupButton = () => {
+    router.push('/add-group');  // Navigate to the AddGroupPage route
+  };
+  
   return (
     <>
       <Header/>
       <CategoryPieChart />
       <DownloadExcelButton />
       
-      <div className="p-5">
+      <div className="p-5 flex flex-row flex-wrap gap-4">
         {Object.entries(cityData).map(([city, groups]) => (
-          <div key={city} className="mb-10 w-full mx-auto">
+          <div key={city} className="mb-10 mx-auto">
             <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold">{city}</h2>
             <button
-              
+              onClick={addGroupButton}
               className="flex items-center text-blue-500 hover:text-blue-700 text-sm"
             >
               <FaPlus className="mr-2" /> Add Group
@@ -119,7 +123,7 @@ export default function HomePage() {
                   <div key={group} className="mb-2 flex items-center w-full">
                     <div
                       onClick={() => handleGroupClick(city, group)}
-                      className="flex justify-between p-2 border border-gray-300 cursor-pointer w-80 bg-gray-100"
+                      className="flex justify-between p-2 border border-gray-300 cursor-pointer w-80 bg-gray-100 hover:bg-gray-200 hover:shadow-md transition"
                     >
                       <strong>{`Group ${group}`}</strong>
                       <div className="flex justify-between w-1/2 pl-2">
