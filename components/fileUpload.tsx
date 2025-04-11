@@ -49,7 +49,7 @@ const FileUpload = () => {
             .eq('email', user.email)
             .eq('first_name', user.first_name) 
             .eq('last_name', user.last_name)  
-            .limit(1);  // Ensures we get a maximum of 1 result
+            .limit(1); 
             console.log(user);
           if (fetchError) {
             throw fetchError;
@@ -88,11 +88,26 @@ const FileUpload = () => {
   };
 
   return (
-    <div>
-      <h2>Upload Excel File</h2>
-      <input type="file" accept=".xlsx, .xls" onChange={handleFileChange} />
-      <button onClick={handleUpload}>Upload</button>
-      {message && <p>{message}</p>}
+    <div className="max-w-md mx-auto p-6 bg-white rounded-2xl shadow-md space-y-4">
+      <h2 className="text-xl font-semibold text-gray-800">Upload Excel File</h2>
+      <input
+        type="file"
+        accept=".xlsx, .xls"
+        onChange={handleFileChange}
+        className="block w-full text-sm text-gray-600
+                  file:mr-4 file:py-2 file:px-4
+                  file:rounded-full file:border-0
+                  file:text-sm file:font-semibold
+                  file:bg-blue-50 file:text-blue-700
+                  hover:file:bg-blue-100"
+      />
+      <button
+        onClick={handleUpload}
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-200"
+      >
+        Upload
+      </button>
+      {message && <p className="text-green-600 font-medium">{message}</p>}
     </div>
   );
 };

@@ -8,13 +8,9 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
 // Register Chart.js components
 ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale, ChartDataLabels);
 
-type CategoryCount = {
-  category: string; 
-  count: number;
-};
 
 const CategoryPieChart: React.FC = () => {
-  const [categoryCounts, setCategoryCounts] = useState<{ [key: string]: number }>({});
+  const [groupCounts, setGroupCounts] = useState<{ [key: string]: number }>({});
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -24,20 +20,21 @@ const CategoryPieChart: React.FC = () => {
       try {
         // Fetch data from Supabase and group by Category
         const { data, error } = await supabase
-          .from('users') 
-          .select('category')
+          .from('members') 
+          .select('group_id')
+          
          
 
         if (error) {
           throw new Error(error.message);
         }
 
-        const counts = data.reduce((acc: { [key: string]: number }, row: { category: string }) => {
-            acc[row.category] = (acc[row.category] || 0) + 1;
+        const counts = data.reduce((acc: { [key: string]: number }, row: { group_id: string }) => {
+            acc[row.group_id] = (acc[row.group_id] || 0) + 1;
             return acc;
           }, {});
 
-        setCategoryCounts(counts);
+        setGroupCounts(counts);
         setCategories(data); //raw data
       } catch (error: any) {
         setError(error.message);
@@ -59,10 +56,10 @@ const CategoryPieChart: React.FC = () => {
   }
 
   const pieData = {
-    labels: ['Category 1', 'Category 2', 'Category 3', 'Category 4', 'Category 5', 'Null'],
+    labels: ['Group 1', 'Group 2', 'Group 3', 'Group 4', 'Group 5', 'Null'],
     datasets: [
       {
-        data: Object.values(categoryCounts),
+        data: Object.values(groupCounts),
         backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#FF5733', '#C70039'],
         hoverOffset: 4,
       },
